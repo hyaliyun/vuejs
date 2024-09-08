@@ -687,7 +687,7 @@ export default defineConfigWithTheme<ThemeConfig>({
         text: 'MIT License',
         link: 'https://www.543x.com'
       },
-      copyright: `Copyright © 2014-${new Date().getFullYear()} Vue.js
+      copyright: 'Copyright © 2014-${new Date().getFullYear()} Vuejs'
     }
   },
 
