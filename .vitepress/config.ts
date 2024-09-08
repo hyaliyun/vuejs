@@ -569,7 +569,7 @@ export default defineConfigWithTheme<ThemeConfig>({
   extends: baseConfig,
 
   sitemap: {
-    hostname: 'https://vuejs.org'
+    hostname: 'https://www.252x.com'
   },
 
   lang: 'en-US',
@@ -580,7 +580,7 @@ export default defineConfigWithTheme<ThemeConfig>({
 
   head: [
     ['meta', { name: 'theme-color', content: '#3c8772' }],
-    ['meta', { property: 'og:url', content: 'https://vuejs.org/' }],
+    ['meta', { property: 'og:url', content: 'https://www.252x.com' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:title', content: 'Vue.js' }],
     [
@@ -725,4 +725,4 @@ export default defineConfigWithTheme<ThemeConfig>({
       stringify: true
     }
   }
-})
+});
