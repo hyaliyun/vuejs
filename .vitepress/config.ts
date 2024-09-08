@@ -687,7 +687,7 @@ export default defineConfigWithTheme<ThemeConfig>({
         text: 'MIT License',
         link: 'https://www.543x.com'
       },
-      copyright: 'Copyright © 2014-${new Date().getFullYear()} Vuejs'
+      copyright: `Copyright © 2014-${new Date().getFullYear()} Vue.js`
     }
   },
 
@@ -724,5 +724,11 @@ export default defineConfigWithTheme<ThemeConfig>({
     json: {
       stringify: true
     }
+  },
+
+  root: 'src',
+  build: {
+    outDir: path.resolve(__dirname, 'dist'),
+    emptyOutDir: true
   }
 });
