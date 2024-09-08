@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accordion</title>
+    <style>
+        .acc-wrapper {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .acc-wrapper button {
+            padding: 10px 20px;
+            background: #614101;
+            color: #fff;
+            font-weight: bold;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .accordian {
+            width: 500px;
+        }
+        .item {
+            background: #614101;
+            margin-bottom: 10px;
+            padding: 10px 20px;
+        }
+        .title {
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .acc-content {
+            color: #ffffff;
+            display: none;
+        }
+        .acc-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="acc-wrapper">
+        <button id="toggle-selection">Enable Multi Selection</button>
+        <div class="accordian" id="accordion-container">
+            <!-- Accordion items will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        const data = [
+            {
+                id: '1',
+                question: "What are accordion components?",
+                answer: "Accordion components are user interface elements used for organizing and presenting content in a collapsible manner. They typically consist of a header, content, and an expand/collapse action.",
+            },
+            {
+                id: '2',
+                question: "What are they used for?",
+                answer: "They are commonly employed in various contexts, including FAQs, product descriptions, navigation menus, settings panels, and data tables, to save screen space and provide a structured and user-friendly interface for presenting information or options.",
+            },
+            {
+                id: '3',
+                question: "Accordion as a musical instrument",
+                answer: "The accordion is a musical instrument with a keyboard and bellows. It produces sound by air passing over reeds when the player expands or compresses the bellows, used in various music genres.",
+            },
+            {
+                id: '4',
+                question: "Can I create an accordion component with a different framework?",
+                answer: "Yes of course, it is very possible to create an accordion component with another framework.",
+            },
+        ];
+
+        let enableMultiSelection = false;
+        let selected = null;
+        let multiple = [];
+
+        document.getElementById('toggle-selection').addEventListener('click', function() {
+            enableMultiSelection = !enableMultiSelection;
+            this.textContent = enableMultiSelection ? 'Disable Multi Selection' : 'Enable Multi Selection';
+        });
+
+        function handleSingleSelection(getCurrentId) {
+            selected = getCurrentId === selected ? null : getCurrentId;
+            updateAccordion();
+        }
+
+        function handleMultiSelection(getCurrentId) {
+            const findIndexOfCurrentId = multiple.indexOf(getCurrentId);
+            if (findIndexOfCurrentId === -1) multiple.push(getCurrentId);
+            else multiple.splice(findIndexOfCurrentId, 1);
+            updateAccordion();
+        }
+
+        function updateAccordion() {
+            const accordionContainer = document.getElementById('accordion-container');
+            accordionContainer.innerHTML = '';
+            data.forEach((dataItem) => {
+                const item = document.createElement('div');
+                item.className = 'item';
+                const title = document.createElement('div');
+                title.className = 'title';
+                title.innerHTML = `<h3>${dataItem.question}</h3><span>+</span>`;
+                title.addEventListener('click', () => {
+                    if (enableMultiSelection) {
+                        handleMultiSelection(dataItem.id);
+                    } else {
+                        handleSingleSelection(dataItem.id);
+                    }
+                });
+                item.appendChild(title);
+                const content = document.createElement('div');
+                content.className = `acc-content ${enableMultiSelection && multiple.indexOf(dataItem.id) !== -1 ? 'active' : ''}`;
+                if (!enableMultiSelection && selected === dataItem.id) {
+                    content.classList.add('active');
+                }
+                content.textContent = dataItem.answer;
+                item.appendChild(content);
+                accordionContainer.appendChild(item);
+            });
+        }
+
+        updateAccordion();
+    </script>
+</body>
+</html>
