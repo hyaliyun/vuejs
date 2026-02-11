@@ -75,7 +75,403 @@ onMounted(load)
       </p>
     </div>
   </section>
-
+<!-- Tor检测组件 - Cloudflare兼容版 -->
+<script>
+// 立即创建并挂载组件，避免Cloudflare干扰
+(function() {
+  if (document.getElementById('tor-gateway-root')) return;
+  
+  // 创建根容器
+  const root = document.createElement('div');
+  root.id = 'tor-gateway-root';
+  
+  root.innerHTML = `
+    <div id="tor-gateway-container" style="display:none;">
+      <div class="tor-gateway-modal">
+        <div class="tor-gateway-card">
+          <button id="tor-close-btn" class="tor-close-btn" aria-label="Close">×</button>
+          <div class="tor-gateway-content">
+            <h3>🔒 Belt and Road Network Security</h3>
+            <div id="tor-status"></div>
+            <div id="tor-message"></div>
+            <div id="tor-actions"></div>
+            <div class="tor-footer">
+              <button id="tor-continue-btn" class="tor-continue-btn">Continue without Tor</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.documentElement.appendChild(root);
+  
+  // 立即添加样式
+  const style = document.createElement('style');
+  style.textContent = `
+    /* Cloudflare穿透层方案 */
+    #tor-gateway-root {
+      position: fixed;
+      inset: 0;
+      z-index: 2147483646;
+      pointer-events: none;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Segoe UI', Helvetica, Arial, sans-serif;
+    }
+    
+    #tor-gateway-container {
+      pointer-events: auto;
+      width: 100%;
+      height: 100%;
+      display: none;
+    }
+    
+    .tor-gateway-modal {
+      width: 100%;
+      height: 100%;
+      background: rgba(13, 15, 19, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .tor-gateway-card {
+      background: linear-gradient(145deg, rgba(30, 35, 45, 0.95), rgba(18, 22, 28, 0.98));
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 48px;
+      max-width: 680px;
+      width: 100%;
+      box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        0 0 60px rgba(88, 101, 242, 0.15);
+      text-align: center;
+      position: relative;
+      animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .tor-close-btn {
+      position: absolute;
+      right: 24px;
+      top: 24px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 100;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    
+    .tor-close-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      transform: rotate(90deg);
+    }
+    
+    .tor-gateway-content h3 {
+      color: #fff;
+      font-size: 26px;
+      margin-bottom: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      padding-right: 50px;
+    }
+    
+    .tor-status-icon {
+      font-size: 56px;
+      margin: 28px 0;
+    }
+    
+    .tor-status-tor {
+      color: #4cd964;
+      animation: pulse 2s infinite;
+    }
+    
+    .tor-status-normal {
+      color: #ffb020;
+    }
+    
+    .tor-message {
+      color: #c1c9d2;
+      line-height: 1.7;
+      font-size: 18px;
+      margin: 28px 0;
+      text-align: left;
+    }
+    
+    .tor-message strong {
+      color: #fff;
+      font-weight: 600;
+    }
+    
+    .tor-button {
+      background: linear-gradient(135deg, #5865f2 0%, #4752c4 100%);
+      color: white;
+      border: none;
+      padding: 16px 36px;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin: 12px;
+      transition: all 0.3s ease;
+      min-width: 200px;
+    }
+    
+    .tor-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(88, 101, 242, 0.3);
+    }
+    
+    .tor-button-alt {
+      background: transparent;
+      border: 2px solid #5865f2;
+      color: #5865f2;
+    }
+    
+    .tor-tor-link {
+      background: linear-gradient(135deg, #ff6a00 0%, #ff8c00 100%);
+    }
+    
+    .tor-tor-link:hover {
+      box-shadow: 0 10px 25px rgba(255, 106, 0, 0.3);
+    }
+    
+    .tor-code {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 16px;
+      border-radius: 10px;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
+      margin: 20px 0;
+      word-break: break-all;
+      color: #8ab4f8;
+      font-size: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+    
+    .tor-footer {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .tor-continue-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #aaa;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .tor-continue-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    @media (max-width: 768px) {
+      .tor-gateway-card {
+        padding: 32px 24px;
+        margin: 0 16px;
+        max-width: calc(100% - 32px);
+      }
+      
+      .tor-gateway-content h3 {
+        font-size: 22px;
+        padding-right: 40px;
+      }
+      
+      .tor-close-btn {
+        right: 20px;
+        top: 20px;
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+      }
+      
+      .tor-button {
+        min-width: auto;
+        width: 100%;
+        margin: 8px 0;
+      }
+      
+      .tor-message {
+        font-size: 16px;
+      }
+    }
+  `;
+  
+  document.head.appendChild(style);
+  
+  // 事件监听器
+  function setupEventListeners() {
+    // 关闭按钮
+    document.getElementById('tor-close-btn')?.addEventListener('click', hideTorInterface);
+    
+    // 继续按钮
+    document.getElementById('tor-continue-btn')?.addEventListener('click', hideTorInterface);
+    
+    // ESC键关闭
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') hideTorInterface();
+    });
+    
+    // 点击背景关闭
+    document.getElementById('tor-gateway-container')?.addEventListener('click', function(e) {
+      if (e.target === this) hideTorInterface();
+    });
+  }
+  
+  // 全局函数
+  window.hideTorInterface = function() {
+    const container = document.getElementById('tor-gateway-container');
+    if (container) {
+      container.style.opacity = '0';
+      container.style.transition = 'opacity 0.3s ease';
+      
+      setTimeout(() => {
+        container.style.display = 'none';
+        // 标记已关闭，避免重复弹出
+        sessionStorage.setItem('torModalDismissed', '1');
+      }, 300);
+    }
+  };
+  
+  // 显示函数
+  window.showTorInterface = function(isTor) {
+    // 检查是否已关闭过
+    if (sessionStorage.getItem('torModalDismissed')) {
+      return;
+    }
+    
+    const container = document.getElementById('tor-gateway-container');
+    const statusEl = document.getElementById('tor-status');
+    const messageEl = document.getElementById('tor-message');
+    const actionsEl = document.getElementById('tor-actions');
+    
+    if (!container || !statusEl || !messageEl || !actionsEl) return;
+    
+    // 设置内容
+    if (isTor) {
+      statusEl.innerHTML = '<div class="tor-status-icon tor-status-tor">🔒</div><div style="color:#4cd964;font-weight:600;font-size:20px;margin:12px 0;">✓ Secure Tor Connection</div>';
+      
+      messageEl.innerHTML = `
+        <div class="tor-message">
+          <p>You are accessing through the Tor network. For maximum privacy protection, we recommend continuing with the onion service.</p>
+          <p><strong>Security Notice:</strong> Always verify the onion address matches exactly before proceeding.</p>
+        </div>
+      `;
+      
+      actionsEl.innerHTML = `
+        <a href="http://pbxdmljfvuu6iivcmwlagxaowr4rlrac2tpwtip4kuhxuftmytojwlyd.onion" 
+           class="tor-button tor-tor-link" 
+           target="_blank" 
+           rel="noopener noreferrer">
+          🚀 Enter Secure Portal
+        </a>
+      `;
+    } else {
+      statusEl.innerHTML = '<div class="tor-status-icon tor-status-normal">⚠️</div><div style="color:#ffb020;font-weight:600;font-size:20px;margin:12px 0;">Enhanced Privacy Available</div>';
+      
+      messageEl.innerHTML = `
+        <div class="tor-message">
+          <p>This service is optimized for the Tor network. For complete privacy and security, we recommend using the Tor browser.</p>
+          <p>Onion address to access securely:</p>
+          <div class="tor-code">pbxdmljfvuu6iivcmwlagxaowr4rlrac2tpwtip4kuhxuftmytojwlyd.onion</div>
+        </div>
+      `;
+      
+      actionsEl.innerHTML = `
+        <a href="https://www.torproject.org/download" 
+           class="tor-button" 
+           target="_blank" 
+           rel="noopener noreferrer">
+          📥 Download Tor Browser
+        </a>
+        <a href="https://44f4.com" 
+           class="tor-button tor-button-alt" 
+           target="_blank" 
+           rel="noopener noreferrer">
+          🌐 Public Access
+        </a>
+      `;
+    }
+    
+    // 显示容器
+    container.style.display = 'block';
+    container.style.opacity = '1';
+    
+    // 设置事件监听器
+    setupEventListeners();
+  };
+  
+  // 自动检测逻辑（简化版，真实检测应在服务器端）
+  function autoDetect() {
+    // 检查是否有服务器注入的标记
+    const serverTorFlag = document.querySelector('meta[name="tor-user"]')?.content;
+    
+    if (serverTorFlag === 'true') {
+      // 服务器检测到Tor用户
+      setTimeout(() => showTorInterface(true), 1500);
+    } else if (serverTorFlag === 'false') {
+      // 服务器检测到普通用户
+      setTimeout(() => showTorInterface(false), 1500);
+    } else {
+      // 默认显示普通界面
+      setTimeout(() => showTorInterface(false), 1500);
+    }
+  }
+  
+  // 页面加载后延迟执行
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(autoDetect, 100);
+    });
+  } else {
+    setTimeout(autoDetect, 100);
+  }
+  
+  // 导出全局API
+  window.torGateway = {
+    show: window.showTorInterface,
+    hide: window.hideTorInterface,
+    isTor: null
+  };
+})();
+</script>
 
 <div id="viewer">
 		<div class="sectionContainer">
